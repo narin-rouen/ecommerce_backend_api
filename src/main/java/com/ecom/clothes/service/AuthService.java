@@ -1,10 +1,15 @@
 package com.ecom.clothes.service;
 
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.ecom.clothes.config.SecurityUser;
+import com.ecom.clothes.dto.request.LoginRequest;
+import com.ecom.clothes.dto.request.RefreshTokenRequest;
 import com.ecom.clothes.dto.request.RegisterRequest;
 import com.ecom.clothes.dto.response.AuthResponse;
 import com.ecom.clothes.dto.response.UserSummaryResponse;
@@ -54,5 +59,72 @@ public class AuthService {
 
 		return AuthResponse.builder().accessToken(accessToken).refreshToken(refreshToken).tokenType("Bearer")
 				.expiresIn("24 hours").refreshIn("7 days").user(summary).build();
+	}
+
+	public AuthResponse login(LoginRequest request) {
+		// Authenticate user credential
+		Authentication authentication = authenticationManager
+				.authenticate(new UsernamePasswordAuthenticationToken(request.email(), request.password()));
+
+		// Find user
+		User user = userRepository.findByEmail(request.email())
+				.orElseThrow(() -> new RuntimeException("User not found"));
+
+		// Convert User to SecurityUser
+		SecurityUser userDetails = new SecurityUser(user);
+
+		// Generate tokens
+		String accessToken = jwtService.generateAccessToken(userDetails);
+		String deviceId = "web-browser";
+		String refreshToken = jwtService.generateRefreshToken(userDetails, deviceId);
+
+		UserSummaryResponse summary = UserSummaryResponse.builder().id(user.getId()).firstName(user.getFirstName())
+				.lastName(user.getLastName()).email(user.getEmail()).role(user.getRole()).build();
+
+		return AuthResponse.builder().accessToken(accessToken).refreshToken(refreshToken).tokenType("Bearer")
+				.expiresIn("24 hours").refreshIn("7 days").user(summary).build();
+	}
+
+	public AuthResponse refresh(RefreshTokenRequest request) {
+		// Get user email from refresh token
+		String refreshToken = request.refreshToken();
+		String email = jwtService.extractUsername(refreshToken, true)
+				.orElseThrow(() -> new RuntimeException("Invalid refresh token"));
+
+		// Find user
+		User user = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
+
+		// Convert User to SecurityUser
+		SecurityUser userDetails = new SecurityUser(user);
+
+		// Validate refresh token
+		if (!jwtService.isTokenValid(refreshToken, userDetails, true)) {
+			throw new RuntimeException("Invalid refresh token");
+		}
+
+		// Generate new access token, keep the same refresh token
+		String accessToken = jwtService.generateAccessToken(userDetails);
+
+		UserSummaryResponse summary = UserSummaryResponse.builder().id(user.getId()).firstName(user.getFirstName())
+				.lastName(user.getLastName()).email(user.getEmail()).role(user.getRole()).build();
+
+		return AuthResponse.builder().accessToken(accessToken).refreshToken(refreshToken).tokenType("Bearer")
+				.expiresIn("24 hours").user(summary).build();
+	}
+
+	public UserSummaryResponse getCurrentUser() {
+		// Extract authentication from SecurityContext
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+		if (authentication == null || !authentication.isAuthenticated()) {
+			throw new RuntimeException("No authenticated user found");
+		}
+
+		String email = authentication.getName();
+
+		User user = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
+
+		return UserSummaryResponse.builder().id(user.getId()).firstName(user.getFirstName())
+				.lastName(user.getLastName()).email(user.getEmail()).role(user.getRole()).build();
 	}
 }

@@ -41,24 +41,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 	protected void doFilterInternal(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response,
 			@NotNull FilterChain filterChain) throws ServletException, IOException {
 
-		// Check if this is an auth endpoint - skip JWT processing
-		String path = request.getServletPath();
-		if (path.startsWith("/api/auth/login") || path.startsWith("/api/auth/register")
-				|| path.startsWith("/api/auth/refresh") || path.equals("/api/auth/health")) {
-			filterChain.doFilter(request, response);
-			return;
-		}
-
 		final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
 
-		// Skip JWT processes if no authorization header
 		if (authHeader == null || !authHeader.startsWith(BEARER_PREFIX)) {
-			// For non-auth endpoints, return 401 if no token
-			if (!path.startsWith("/api/public/")) {
-				handleJwtException(response, "Missing or invalid Authorization header",
-						HttpServletResponse.SC_UNAUTHORIZED);
-				return;
-			}
 			filterChain.doFilter(request, response);
 			return;
 		}
@@ -135,8 +120,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 		// Return true to skip filtering for these paths
 		return path.startsWith("/api/auth/login") || path.startsWith("/api/auth/register")
 				|| path.startsWith("/api/auth/refresh") || path.startsWith("/swagger")
-				|| path.startsWith("/v3/api-docs") || path.startsWith("/actuator/health")
-				|| path.equals("/api/auth/health");
+				|| path.startsWith("/api/public/") || path.startsWith("/v3/api-docs")
+				|| path.startsWith("/actuator/health") || path.equals("/api/auth/health");
 	}
 
 	private void handleJwtException(HttpServletResponse response, String message, int statusCode) throws IOException {
