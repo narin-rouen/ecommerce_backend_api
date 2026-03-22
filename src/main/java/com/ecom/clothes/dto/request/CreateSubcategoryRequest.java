@@ -6,7 +6,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
-public record SubcategoryRequest(
+public record CreateSubcategoryRequest(
 
 		@JsonProperty("category_id") @NotNull(message = "Category id is required") Long categoryId,
 

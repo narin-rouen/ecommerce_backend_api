@@ -8,10 +8,12 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ecom.clothes.dto.common.PageRequest;
-import com.ecom.clothes.dto.request.SubcategoryRequest;
+import com.ecom.clothes.dto.request.CreateSubcategoryRequest;
+import com.ecom.clothes.dto.request.UpdateSubcategoryRequest;
 import com.ecom.clothes.dto.response.SubcategoryPageResponse;
 import com.ecom.clothes.dto.response.SubcategoryResponse;
 import com.ecom.clothes.service.SubcategoryService;
@@ -20,7 +22,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-@RestController("/api/admin/subcategories")
+@RestController
+@RequestMapping("/api/admin/subcategories")
 @Slf4j
 @RequiredArgsConstructor
 public class SubcategoryController {
@@ -53,7 +56,7 @@ public class SubcategoryController {
 
 	@PostMapping
 	@PreAuthorize("hasAuthority('ADMIN')")
-	public ResponseEntity<SubcategoryResponse> createSubcategory(@Valid @RequestBody SubcategoryRequest request) {
+	public ResponseEntity<SubcategoryResponse> createSubcategory(@Valid @RequestBody CreateSubcategoryRequest request) {
 		log.info("Admin create new subcategory with category id: {}, name: {}", request.categoryId(), request.name());
 		SubcategoryResponse response = subcategoryService.createSubcategory(request);
 		return ResponseEntity.ok(response);
@@ -62,7 +65,7 @@ public class SubcategoryController {
 	@PutMapping("/{id}")
 	@PreAuthorize("hasAuthority('ADMIN')")
 	public ResponseEntity<SubcategoryResponse> updateSubcategory(@PathVariable Long id,
-			@Valid @RequestBody SubcategoryRequest request) {
+			@Valid @RequestBody UpdateSubcategoryRequest request) {
 		log.info("Admin update subcategory with id: {}", id);
 		SubcategoryResponse response = subcategoryService.updateSubcategory(id, request);
 		return ResponseEntity.ok(response);

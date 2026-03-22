@@ -8,7 +8,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.ecom.clothes.dto.common.PageRequest;
-import com.ecom.clothes.dto.request.SubcategoryRequest;
+import com.ecom.clothes.dto.request.CreateSubcategoryRequest;
+import com.ecom.clothes.dto.request.UpdateSubcategoryRequest;
 import com.ecom.clothes.dto.response.SubcategoryPageResponse;
 import com.ecom.clothes.dto.response.SubcategoryResponse;
 import com.ecom.clothes.entity.Category;
@@ -67,15 +68,15 @@ public class SubcategoryService {
 	}
 
 	@Transactional
-	public SubcategoryResponse createSubcategory(SubcategoryRequest request) {
+	public SubcategoryResponse createSubcategory(CreateSubcategoryRequest request) {
 		log.info("Create new subcategory with category id: {}, name: {}", request.categoryId(), request.name());
 
 		// check if the category id exist
 		Category category = categoryRepository.findById(request.categoryId()).orElseThrow(
-				() -> new CategoryNotFoundException("Category not found with id: {}", request.categoryId()));
+				() -> new CategoryNotFoundException("Category not found with id: {}" + request.categoryId()));
 
 		Subcategory subcategory = new Subcategory();
-		subcategory.setCategory(request.categoryId());
+		subcategory.setCategory(category);
 		subcategory.setName(request.name());
 		subcategory.setDescription(request.description());
 
@@ -86,14 +87,16 @@ public class SubcategoryService {
 	}
 
 	@Transactional
-	public SubcategoryResponse updateSubcategory(Long id, SubcategoryRequest request) {
+	public SubcategoryResponse updateSubcategory(Long id, UpdateSubcategoryRequest request) {
 		log.info("Update subcategory with id:{}", id);
 
 		Subcategory subcategory = subcategoryRepository.findById(id)
-				.orElseThrow(() -> new SubcategoryNotFoundException("Subcategory not found with id: {}", id));
+				.orElseThrow(() -> new SubcategoryNotFoundException("Subcategory not found with id: {}" + id));
 
 		if (request.categoryId() != null) {
-			subcategory.setCategory(request.categoryId());
+			Category category = categoryRepository.findById(request.categoryId()).orElseThrow(
+					() -> new CategoryNotFoundException("Category not found with id: {}" + request.categoryId()));
+			subcategory.setCategory(category);
 		}
 		if (request.name() != null) {
 			subcategory.setName(request.name());
@@ -113,7 +116,7 @@ public class SubcategoryService {
 		log.info("Delete subcategory with id: {}", id);
 
 		Subcategory subcategory = subcategoryRepository.findById(id)
-				.orElseThrow(() -> new SubcategoryNotFoundException("Subcategory not found with id: {}", id));
+				.orElseThrow(() -> new SubcategoryNotFoundException("Subcategory not found with id: {}" + id));
 
 		subcategory.setDeletedAt(LocalDateTime.now());
 		subcategoryRepository.save(subcategory);
