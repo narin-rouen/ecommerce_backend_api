@@ -1,5 +1,7 @@
 package com.ecom.clothes.repository;
 
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -14,4 +16,5 @@ public interface SubcategoryRepository extends JpaRepository<Subcategory, Long> 
 			+ "LOWER(s.description) LIKE LOWER(CONCAT('%', :search, '%'))")
 	Page<Subcategory> findAllWithSearch(@Param("search") String search, Pageable pageable);
 
+	List<Subcategory> findByCategoryId(Long categoryId);
 }

@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.ecom.clothes.dto.common.PageRequest;
 import com.ecom.clothes.dto.request.CreateCategoryRequest;
 import com.ecom.clothes.dto.request.UpdateCategoryRequest;
+import com.ecom.clothes.dto.response.CategoryDetailsResponse;
 import com.ecom.clothes.dto.response.CategoryPageResponse;
 import com.ecom.clothes.dto.response.CategoryResponse;
 import com.ecom.clothes.service.CategoryService;
@@ -40,9 +41,9 @@ public class CategoryController {
 
 	@GetMapping("/{id}")
 	@PreAuthorize("hasAuthority('ADMIN')")
-	public ResponseEntity<CategoryResponse> getCategoryById(@PathVariable Long id) {
+	public ResponseEntity<CategoryDetailsResponse> getCategoryById(@PathVariable Long id) {
 		log.info("REST request to get category by id: {}", id);
-		CategoryResponse response = categoryService.getCategoryById(id);
+		CategoryDetailsResponse response = categoryService.getCategoryById(id);
 		return ResponseEntity.ok(response);
 	}
 

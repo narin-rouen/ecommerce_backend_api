@@ -2,6 +2,7 @@ package com.ecom.clothes.service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
@@ -10,11 +11,14 @@ import org.springframework.transaction.annotation.Transactional;
 import com.ecom.clothes.dto.common.PageRequest;
 import com.ecom.clothes.dto.request.CreateCategoryRequest;
 import com.ecom.clothes.dto.request.UpdateCategoryRequest;
+import com.ecom.clothes.dto.response.CategoryDetailsResponse;
 import com.ecom.clothes.dto.response.CategoryPageResponse;
 import com.ecom.clothes.dto.response.CategoryResponse;
+import com.ecom.clothes.dto.response.SubcategoryResponse;
 import com.ecom.clothes.entity.Category;
 import com.ecom.clothes.exception.CategoryNotFoundException;
 import com.ecom.clothes.repository.CategoryRepository;
+import com.ecom.clothes.repository.SubcategoryRepository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,6 +29,7 @@ import lombok.extern.slf4j.Slf4j;
 public class CategoryService {
 
 	private final CategoryRepository categoryRepository;
+	private final SubcategoryRepository subcategoryRepository;
 
 	@Transactional(readOnly = true)
 	public CategoryPageResponse getAllCategories(PageRequest request) {
@@ -45,13 +50,16 @@ public class CategoryService {
 	}
 
 	@Transactional(readOnly = true)
-	public CategoryResponse getCategoryById(Long id) {
+	public CategoryDetailsResponse getCategoryById(Long id) {
 		log.info("Fetching category by id: {}", id);
 
 		Category category = categoryRepository.findById(id)
 				.orElseThrow(() -> new CategoryNotFoundException("Category not found with id: " + id));
 
-		return CategoryResponse.from(category);
+		List<SubcategoryResponse> subcategoryResponses = subcategoryRepository.findByCategoryId(category.getId())
+				.stream().map(SubcategoryResponse::from).collect(Collectors.toList());
+
+		return CategoryDetailsResponse.from(category, subcategoryResponses);
 	}
 
 	@Transactional
