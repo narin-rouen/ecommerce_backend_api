@@ -46,6 +46,14 @@ public class SubcategoryController {
 		return ResponseEntity.ok(response);
 	}
 
+	@GetMapping("/deleted")
+	@PreAuthorize("hasAuthority('ADMIN')")
+	public ResponseEntity<SubcategoryPageResponse> getAllDeletedSubcategory(@Valid PageRequest request) {
+		log.info("Admin fetch all deleted subcategory with page: {}, size: {}", request.page(), request.size());
+		SubcategoryPageResponse response = subcategoryService.getAllDeletedSubcategory(request);
+		return ResponseEntity.ok(response);
+	}
+
 	@GetMapping("/{id}")
 	@PreAuthorize("hasAuthority('ADMIN')")
 	public ResponseEntity<SubcategoryResponse> getCategoryById(@PathVariable Long id) {

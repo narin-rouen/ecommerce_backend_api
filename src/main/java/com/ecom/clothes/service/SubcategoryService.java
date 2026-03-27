@@ -67,6 +67,19 @@ public class SubcategoryService {
 		return SubcategoryResponse.from(subcategory);
 	}
 
+	@Transactional(readOnly = true)
+	public SubcategoryPageResponse getAllDeletedSubcategory(PageRequest request) {
+		log.info("Fetch all subcategory with page: {}, size:{} ", request.page(), request.size());
+
+		Page<Subcategory> subcategoryPage = subcategoryRepository.findAllDeleted(request.toPageable());
+
+		List<SubcategoryResponse> subcategoryResponse = subcategoryPage.getContent().stream()
+				.map(SubcategoryResponse::from).toList();
+
+		return new SubcategoryPageResponse(subcategoryResponse, subcategoryPage.getNumber(), subcategoryPage.getSize(),
+				request.sortBy(), request.direction(), request.search());
+	}
+
 	@Transactional
 	public SubcategoryResponse createSubcategory(CreateSubcategoryRequest request) {
 		log.info("Create new subcategory with category id: {}, name: {}", request.categoryId(), request.name());
@@ -102,7 +115,7 @@ public class SubcategoryService {
 			subcategory.setName(request.name());
 		}
 		if (request.description() != null) {
-
+			subcategory.setDescription(request.description());
 		}
 
 		Subcategory updatedSubcategory = subcategoryRepository.save(subcategory);

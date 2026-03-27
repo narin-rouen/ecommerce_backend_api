@@ -41,8 +41,8 @@ public class Product {
 	private String imageFileName;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "category_id", nullable = false)
-	private Category category;
+	@JoinColumn(name = "subcategory_id", nullable = false)
+	private Subcategory subcategory;
 
 	@CreationTimestamp
 	@Column(name = "created_at")
