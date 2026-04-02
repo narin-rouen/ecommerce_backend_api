@@ -9,11 +9,12 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.ecom.clothes.config.SecurityUser;
 import com.ecom.clothes.dto.common.PageRequest;
 import com.ecom.clothes.dto.request.CreateAddressRequest;
+import com.ecom.clothes.dto.request.UpdateAddressRequest;
 import com.ecom.clothes.dto.response.AddressPageResponse;
 import com.ecom.clothes.dto.response.AddressResponse;
 import com.ecom.clothes.dto.response.UserAddressResponse;
@@ -23,7 +24,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-@RequestMapping
+@RestController
 @RequiredArgsConstructor
 @Slf4j
 public class AddressController {
@@ -103,7 +104,7 @@ public class AddressController {
 	@PutMapping("/api/user/addresses/{id}")
 	@PreAuthorize("hasAuthority('USER')")
 	public ResponseEntity<AddressResponse> updateAddress(@AuthenticationPrincipal SecurityUser currentUser,
-			@PathVariable Long id, @Valid @RequestBody CreateAddressRequest request) {
+			@PathVariable Long id, @Valid @RequestBody UpdateAddressRequest request) {
 		log.info("Update address for user id: {}, address id: {}, request: {}", currentUser.getUser().getId(), id,
 				request);
 		Long userId = currentUser.getUser().getId();

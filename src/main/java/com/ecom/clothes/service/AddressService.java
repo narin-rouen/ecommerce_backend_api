@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.ecom.clothes.dto.common.PageRequest;
 import com.ecom.clothes.dto.request.CreateAddressRequest;
+import com.ecom.clothes.dto.request.UpdateAddressRequest;
 import com.ecom.clothes.dto.response.AddressPageResponse;
 import com.ecom.clothes.dto.response.AddressResponse;
 import com.ecom.clothes.dto.response.UserAddressResponse;
@@ -141,7 +142,7 @@ public class AddressService {
 	}
 
 	@Transactional
-	public AddressResponse updateAddress(Long id, CreateAddressRequest request, Long userId) {
+	public AddressResponse updateAddress(Long id, UpdateAddressRequest request, Long userId) {
 		log.info("Update address with id: {}", id);
 
 		User user = userRepository.findById(userId)
