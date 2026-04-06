@@ -1,6 +1,7 @@
 package com.ecom.clothes.controller;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -30,22 +31,25 @@ public class ProductAttributeController {
 	private final ProductAttributeService productAttributeService;
 
 	@GetMapping
+	@PreAuthorize("hasAuthority('ADMIN')")
 	public ResponseEntity<ProductAttributePageResponse> getAllActiveAttributes(@Valid PageRequest request) {
 		log.info("Admin requested to get all active product attributes with page: {}, size: {}", request.page(),
 				request.size());
-		ProductAttributePageResponse response = productAttributeService.getAllActiveAttributes(null);
+		ProductAttributePageResponse response = productAttributeService.getAllActiveAttributes(request);
 		return ResponseEntity.ok(response);
 	}
 
-	@GetMapping
+	@GetMapping("/deleted")
+	@PreAuthorize("hasAuthority('ADMIN')")
 	public ResponseEntity<ProductAttributePageResponse> getAllDeletedAttributes(@Valid PageRequest request) {
 		log.info("Admin requested to get all deleted product attributes with page: {}, size: {}", request.page(),
 				request.size());
-		ProductAttributePageResponse response = productAttributeService.getAllDeletedAttributes(null);
+		ProductAttributePageResponse response = productAttributeService.getAllDeletedAttributes(request);
 		return ResponseEntity.ok(response);
 	}
 
 	@GetMapping("/{id}")
+	@PreAuthorize("hasAuthority('ADMIN')")
 	public ResponseEntity<ProductAttributeResponse> getActiveAttributeById(@PathVariable Long id) {
 		log.info("Admin requested to get active product attribute by id: {}", id);
 		ProductAttributeResponse response = productAttributeService.getActiveAttributeById(id);
@@ -53,6 +57,7 @@ public class ProductAttributeController {
 	}
 
 	@PostMapping
+	@PreAuthorize("hasAuthority('ADMIN')")
 	public ResponseEntity<ProductAttributeResponse> createAttribute(
 			@Valid @RequestBody CreateProductAttributeRequest request) {
 		log.info("Admin requested to create product attribute: {}", request);
@@ -60,7 +65,8 @@ public class ProductAttributeController {
 		return ResponseEntity.ok(response);
 	}
 
-	@PutMapping
+	@PutMapping("/{id}")
+	@PreAuthorize("hasAuthority('ADMIN')")
 	public ResponseEntity<ProductAttributeResponse> updateAttribute(@PathVariable Long id,
 			@Valid @RequestBody UpdateProductAttributeRequest request) {
 		log.info("Admin requested to update product attribute with id: {}, data: {}", id, request);
@@ -69,6 +75,7 @@ public class ProductAttributeController {
 	}
 
 	@DeleteMapping("/{id}")
+	@PreAuthorize("hasAuthority('ADMIN')")
 	public ResponseEntity<Void> deleteAttribute(@PathVariable Long id) {
 		log.info("Admin requested to delete product attribute with id: {}", id);
 		productAttributeService.softDeleteAttribute(id);
