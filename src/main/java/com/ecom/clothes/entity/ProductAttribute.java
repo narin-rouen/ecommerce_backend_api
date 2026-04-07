@@ -32,7 +32,7 @@ public class ProductAttribute {
 
 	@NotBlank(message = "Value is required")
 	@Column(nullable = false, length = 100)
-	@Size(min = 2, max = 100, message = "Value must be between 2 to 100 characters")
+	@Size(min = 1, max = 100, message = "Value must be between 2 to 100 characters")
 	private String value;
 
 	@CreationTimestamp
