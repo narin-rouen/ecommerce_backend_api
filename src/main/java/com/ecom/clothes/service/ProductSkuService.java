@@ -37,7 +37,7 @@ public class ProductSkuService {
 	public ProductSkuPageResponse getAllActiveProdcutSkus(PageRequest request) {
 		log.info("Fetching all active product SKUs with page: {}, size: {}", request.page(), request.size());
 
-		var productSkuPage = productSkuRepository.findAll(request.toPageable());
+		var productSkuPage = productSkuRepository.findAllActive(request.toPageable());
 
 		var productSkuResponses = productSkuPage.getContent().stream().map(ProductSkuResponse::from).toList();
 
@@ -49,7 +49,7 @@ public class ProductSkuService {
 	public ProductSkuPageResponse getAllDeletedProdcutSkus(PageRequest request) {
 		log.info("Fetching all deleted product SKUs with page: {}, size: {}", request.page(), request.size());
 
-		var productSkuPage = productSkuRepository.findAll(request.toPageable());
+		var productSkuPage = productSkuRepository.findAllDeleted(request.toPageable());
 
 		var productSkuResponses = productSkuPage.getContent().stream().map(ProductSkuResponse::from).toList();
 
@@ -62,7 +62,7 @@ public class ProductSkuService {
 		log.info("Searching active product SKUs with page: {}, size: {}, search: {}", request.page(), request.size(),
 				request.search());
 
-		var productSkuPage = productSkuRepository.findAll(request.toPageable());
+		var productSkuPage = productSkuRepository.searchActiveBySku(request.search(), request.toPageable());
 
 		var productSkuResponses = productSkuPage.getContent().stream().map(ProductSkuResponse::from).toList();
 
@@ -74,7 +74,7 @@ public class ProductSkuService {
 	public ProductSkuResponse getActiveProductSkuById(Long id) {
 		log.info("Fetching active product SKU by id: {}", id);
 
-		var productSku = productSkuRepository.findById(id)
+		var productSku = productSkuRepository.findActiveById(id)
 				.orElseThrow(() -> new ProductSkuNotFoundException("Product SKU not found with id: " + id));
 
 		return ProductSkuResponse.from(productSku);
@@ -89,10 +89,10 @@ public class ProductSkuService {
 		Product product = productRepository.findById(request.productId())
 				.orElseThrow(() -> new ProductNotFoundException("Product not found with id: " + request.productId()));
 
-		ProductAttribute sizeAttribute = productAttributeRepository.findById(request.sizeId()).orElseThrow(
+		ProductAttribute sizeAttribute = productAttributeRepository.findActiveById(request.sizeId()).orElseThrow(
 				() -> new ProductAttributeNotFoundException("Size attribute not found with id: " + request.sizeId()));
 
-		ProductAttribute colorAttribute = productAttributeRepository.findById(request.colorId()).orElseThrow(
+		ProductAttribute colorAttribute = productAttributeRepository.findActiveById(request.colorId()).orElseThrow(
 				() -> new ProductAttributeNotFoundException("Color attribute not found with id: " + request.colorId()));
 
 		var productSku = new ProductSku();
@@ -113,19 +113,19 @@ public class ProductSkuService {
 	public ProductSkuResponse updateProductSku(Long id, UpdateProductSkuRequest request) {
 		log.info("Updating product SKU with id: {}", id);
 
-		var productSku = productSkuRepository.findById(id)
+		var productSku = productSkuRepository.findActiveById(id)
 				.orElseThrow(() -> new ProductSkuNotFoundException("Product SKU not found with id: " + id));
 
 		// Validate product, size attribute, and color attribute existence
 		if (request.sizeId() != null) {
-			ProductAttribute sizeAttribute = productAttributeRepository.findById(request.sizeId())
+			ProductAttribute sizeAttribute = productAttributeRepository.findActiveById(request.sizeId())
 					.orElseThrow(() -> new ProductAttributeNotFoundException(
 							"Size attribute not found with id: " + request.sizeId()));
 			productSku.setSizeAttributeId(sizeAttribute);
 		}
 
 		if (request.colorId() != null) {
-			ProductAttribute colorAttribute = productAttributeRepository.findById(request.colorId())
+			ProductAttribute colorAttribute = productAttributeRepository.findActiveById(request.colorId())
 					.orElseThrow(() -> new ProductAttributeNotFoundException(
 							"Color attribute not found with id: " + request.colorId()));
 			productSku.setColorAttributeId(colorAttribute);
@@ -155,7 +155,7 @@ public class ProductSkuService {
 	public void deleteProductSku(Long id) {
 		log.info("Deleting product SKU with id: {}", id);
 
-		var productSku = productSkuRepository.findById(id)
+		var productSku = productSkuRepository.findActiveById(id)
 				.orElseThrow(() -> new ProductSkuNotFoundException("Product SKU not found with id: " + id));
 
 		productSku.setDeletedAt(LocalDateTime.now());
