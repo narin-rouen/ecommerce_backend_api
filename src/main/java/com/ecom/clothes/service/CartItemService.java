@@ -84,6 +84,17 @@ public class CartItemService {
 			throw new RuntimeException("Product with id: " + request.productSkuId() + " is out of stock");
 		}
 
+		// if the cart item already exists, update the quantity
+		CartItem existingCartItem = cartItemRepository.findByCartIdAndProductSkuId(cart.getId(), productSku.getId())
+				.orElse(null);
+		if (existingCartItem != null) {
+			existingCartItem.setQuantity(existingCartItem.getQuantity() + 1);
+			CartItem updatedCartItem = cartItemRepository.save(existingCartItem);
+			log.info("Cart item with id: {} already exists, updated quantity to: {}", updatedCartItem.getId(),
+					updatedCartItem.getQuantity());
+			return CartItemResponse.from(updatedCartItem);
+		}
+
 		CartItem cartItem = new CartItem();
 		cartItem.setCart(cart);
 		cartItem.setProductSku(productSku);
