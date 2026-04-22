@@ -66,15 +66,8 @@ public class CartItemService {
 	public CartItemResponse createCartItem(Long userId, CreateCartItemRequest request) {
 		log.info("Creating cart item for product with id: {}", request.productSkuId());
 
-		// find cart by user id
-		Cart cart = cartRepository.findByUserId(userId).orElse(null);
-
-		// create cart for user for the first time if cart is not exist
-		if (cart == null) {
-			cartService.createCart(userId);
-			cart = cartRepository.findByUserId(userId)
-					.orElseThrow(() -> new RuntimeException("Cart not found with id: " + userId));
-		}
+		// Get or create cart automatically
+		Cart cart = cartService.getOrCreateCartEntity(userId);
 
 		// validate product and stock
 		ProductSku productSku = productSkuRepository.findActiveById(request.productSkuId())

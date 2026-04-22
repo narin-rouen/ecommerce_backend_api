@@ -36,20 +36,29 @@ public class CartService {
 				request.search());
 	}
 
-	@Transactional(readOnly = true)
+	@Transactional
 	public CartResponse getCartByUserId(Long userId) {
 		log.info("Getting cart with id: {}", userId);
 
-		Cart cart = cartRepository.findByUserId(userId)
-				.orElseThrow(() -> new RuntimeException("Cart not found with id: " + userId));
+		Cart cart = cartRepository.findByUserId(userId).orElseGet(() -> {
+			log.info("Cart not found for user id: {}, creating new cart", userId);
+			return createNewCart(userId);
+		});
 
 		return CartResponse.from(cart);
 	}
 
 	@Transactional
-	public void createCart(Long userId) {
-		log.info("Creating cart for user with id: {}", userId);
+	public Cart getOrCreateCartEntity(Long userId) {
+		log.info("Getting or creating cart entity for user id: {}", userId);
 
+		return cartRepository.findByUserId(userId).orElseGet(() -> {
+			log.info("Cart not found for user id: {}, creating new cart", userId);
+			return createNewCart(userId);
+		});
+	}
+
+	private Cart createNewCart(Long userId) {
 		User user = userRepository.findById(userId)
 				.orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
 
@@ -57,7 +66,8 @@ public class CartService {
 		cart.setUser(user);
 
 		Cart savedCart = cartRepository.save(cart);
-		log.info("Cart created with id: {}", savedCart.getId());
+		log.info("New cart created with id: {} for user id: {}", savedCart.getId(), userId);
+		return savedCart;
 	}
 
 }

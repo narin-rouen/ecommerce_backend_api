@@ -1,5 +1,7 @@
 package com.ecom.clothes.dto.request;
 
-public record CreateCartItemRequest(Long productSkuId) {
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+public record CreateCartItemRequest(@JsonProperty("product_sku_id") Long productSkuId) {
 
 }

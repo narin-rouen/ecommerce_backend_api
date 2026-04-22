@@ -33,7 +33,7 @@ public class CartController {
 		return ResponseEntity.ok(response);
 	}
 
-	@GetMapping("/api/user/mycart")
+	@GetMapping("/api/user/myCart")
 	@PreAuthorize("hasAnyRole('USER')")
 	public ResponseEntity<CartResponse> getMyCart(@AuthenticationPrincipal SecurityUser securityUser) {
 		log.info("Getting cart for user: {}", securityUser.getUsername());
@@ -44,7 +44,7 @@ public class CartController {
 		return ResponseEntity.ok(response);
 	}
 
-	@PostMapping("/api/user/clearcart")
+	@PostMapping("/api/user/clearCart")
 	@PreAuthorize("hasAnyRole('USER')")
 	public ResponseEntity<Void> clearMyCart(@AuthenticationPrincipal SecurityUser securityUser) {
 		log.info("Clearing cart for user: {}", securityUser.getUsername());

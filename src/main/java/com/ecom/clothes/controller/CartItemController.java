@@ -30,7 +30,7 @@ public class CartItemController {
 
 	private final CartItemService cartItemService;
 
-	@GetMapping("/api/user/cartItems")
+	@GetMapping("/api/admin/cartItems")
 	@PreAuthorize("hasAnyRole('ADMIN')")
 	public ResponseEntity<CartItemPageResponse> getAllCartItems(PageRequest request) {
 		log.info("Getting all cart items with page: {}, size: {}", request.page(), request.size());
@@ -38,7 +38,7 @@ public class CartItemController {
 		return ResponseEntity.ok(response);
 	}
 
-	@PostMapping("/api/user/cart/add")
+	@PostMapping("/api/user/addToCart")
 	@PreAuthorize("hasAnyRole('USER')")
 	public ResponseEntity<CartItemResponse> addCartItem(@RequestBody CreateCartItemRequest request,
 			@AuthenticationPrincipal SecurityUser securityUser) {
