@@ -34,6 +34,12 @@ public class Payment {
 	@Column(nullable = false)
 	private PaymentStatus status;
 
+	@Column(name = "transaction_id", unique = true)
+	private String transactionId;
+
+	@Column(name = "payment_method")
+	String paymentMethod;
+
 	@CreationTimestamp
 	@Column(name = "created_at", nullable = false)
 	private LocalDateTime createdAt;

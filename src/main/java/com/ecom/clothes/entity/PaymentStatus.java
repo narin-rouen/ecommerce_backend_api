@@ -2,5 +2,5 @@ package com.ecom.clothes.entity;
 
 public enum PaymentStatus {
 
-	SUCCESS, FAILED
+	PENDING, COMPLETED, FAILED, REFUNDED
 }
