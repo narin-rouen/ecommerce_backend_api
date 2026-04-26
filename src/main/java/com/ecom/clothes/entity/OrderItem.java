@@ -1,6 +1,5 @@
 package com.ecom.clothes.entity;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 import org.hibernate.annotations.CreationTimestamp;
@@ -35,7 +34,7 @@ public class OrderItem {
 	private ProductSku productSku;
 
 	@Column(nullable = false)
-	private BigDecimal quantity;
+	private Integer quantity;
 
 	@CreationTimestamp
 	@Column(name = "created_at", nullable = false)
