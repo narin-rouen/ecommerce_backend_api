@@ -11,6 +11,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -45,7 +46,7 @@ public class Order {
 
 	@Enumerated(EnumType.STRING)
 	@Column(name = "status", nullable = false)
-	private OrderStatus status = OrderStatus.PENDING;
+	private OrderStatus status = OrderStatus.SUBMITTED;
 
 	@OneToMany(mappedBy = "order", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<OrderItem> items = new ArrayList<>();
