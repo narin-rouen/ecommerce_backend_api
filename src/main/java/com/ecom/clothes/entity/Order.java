@@ -37,7 +37,7 @@ public class Order {
 	@JoinColumn(name = "user_id", nullable = false)
 	private User user;
 
-	@OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+	@OneToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "payment_id", nullable = false)
 	private Payment payment;
 

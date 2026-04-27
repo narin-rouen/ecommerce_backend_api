@@ -70,6 +70,7 @@ public class OrderService {
 		// Create and save the order
 		Order order = new Order();
 		order.setUser(user);
+		order.setPayment(payment);
 		order.setTotal(total);
 		order.setStatus(OrderStatus.SUBMITTED);
 
