@@ -34,6 +34,7 @@ public class OrderService {
 	private final UserRepository userRepository;
 	private final PaymentService paymentService;
 
+	@Transactional
 	public OrderResponse placeOrder(Long userId, CreatePaymentRequest paymentRequest) {
 		log.info("Placing order for userId: {}", userId);
 
@@ -101,6 +102,7 @@ public class OrderService {
 
 	}
 
+	@Transactional
 	public OrderResponse updateStatus(Long orderId, String status) {
 		log.info("Update order status with order id: {}, with new status: {}", orderId, status);
 		OrderStatus newStatus;
@@ -122,6 +124,7 @@ public class OrderService {
 		return OrderResponse.fromEntity(updatedOrder);
 	}
 
+	@Transactional
 	public OrderResponse confirmReceive(Long userId, Long orderId) {
 		log.info("Confirm Receive order with id: {}", orderId);
 
@@ -208,4 +211,5 @@ public class OrderService {
 			throw new IllegalStateException(String.format("Unknown current status: %s", currentStatus));
 		}
 	}
+
 }
