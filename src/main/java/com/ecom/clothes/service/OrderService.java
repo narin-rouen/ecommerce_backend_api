@@ -3,11 +3,14 @@ package com.ecom.clothes.service;
 import java.math.BigDecimal;
 import java.util.List;
 
+import org.springframework.data.domain.Page;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.ecom.clothes.dto.common.PageRequest;
 import com.ecom.clothes.dto.request.CreatePaymentRequest;
+import com.ecom.clothes.dto.response.OrderPageResponse;
 import com.ecom.clothes.dto.response.OrderResponse;
 import com.ecom.clothes.entity.Cart;
 import com.ecom.clothes.entity.CartItem;
@@ -20,6 +23,7 @@ import com.ecom.clothes.repository.CartItemRepository;
 import com.ecom.clothes.repository.OrderRepository;
 import com.ecom.clothes.repository.UserRepository;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -33,6 +37,18 @@ public class OrderService {
 	private final CartItemRepository cartItemRepository;
 	private final UserRepository userRepository;
 	private final PaymentService paymentService;
+
+	@Transactional(readOnly = true)
+	public OrderPageResponse getAllOrders(@Valid PageRequest request) {
+		log.info("Fetch all order records with page: {}, size: {}", request.page(), request.size());
+
+		Page<Order> orderPage = orderRepository.findAll(request.toPageable());
+
+		List<OrderResponse> orderResponses = orderPage.getContent().stream().map(OrderResponse::fromEntity).toList();
+
+		return new OrderPageResponse(orderResponses, orderPage.getNumber(), orderPage.getSize(), request.sortBy(),
+				request.direction(), request.search());
+	}
 
 	@Transactional
 	public OrderResponse placeOrder(Long userId, CreatePaymentRequest paymentRequest) {
