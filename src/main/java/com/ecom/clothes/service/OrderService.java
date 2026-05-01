@@ -3,6 +3,7 @@ package com.ecom.clothes.service;
 import java.math.BigDecimal;
 import java.util.List;
 
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -122,8 +123,32 @@ public class OrderService {
 	}
 
 	public OrderResponse confirmReceive(Long userId, Long orderId) {
-		// TODO Auto-generated method stub
-		return null;
+		log.info("Confirm Receive order with id: {}", orderId);
+
+		User user = userRepository.findById(userId)
+				.orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
+
+		Order order = orderRepository.findById(orderId)
+				.orElseThrow(() -> new RuntimeException("Order not found with id : " + orderId));
+
+		// validate if order really belong to user
+		if (!order.getUser().getId().equals(userId)) {
+			log.warn("User {} attempted to confirm receipt of order {} belonging to user {}", userId, orderId,
+					order.getUser().getId());
+			throw new AccessDeniedException("Order does not belong to this user");
+		}
+
+		// confirm receive
+		OrderStatus newStatus = OrderStatus.RECEIVED;
+		validateStatusTransition(order.getStatus(), newStatus);
+
+		OrderStatus oldStatus = order.getStatus();
+		order.setStatus(newStatus);
+		Order updatedOrder = orderRepository.save(order);
+
+		log.info("Order {} status updated from {} to {} by user {}", orderId, oldStatus, newStatus, userId);
+
+		return OrderResponse.fromEntity(updatedOrder);
 	}
 
 	private void validateStatusTransition(OrderStatus currentStatus, OrderStatus newStatus) {
