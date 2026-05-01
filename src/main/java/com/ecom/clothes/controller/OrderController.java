@@ -1,5 +1,7 @@
 package com.ecom.clothes.controller;
 
+import java.util.Map;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -35,15 +37,20 @@ public class OrderController {
 		return ResponseEntity.ok(response);
 	}
 
-	@PutMapping("/api/admin/order/{id}")
+	@PutMapping("/api/admin/order/{orderId}")
 	@PreAuthorize("hasAuthority('ADMIN')")
-	public ResponseEntity<OrderResponse> updateOrderStatus(@PathVariable Long orderId){
+	public ResponseEntity<OrderResponse> updateOrderStatus(@PathVariable Long orderId, 
+			@RequestBody Map<String, String> body){
+		if (!body.containsKey("status") || body.get("status").isEmpty()) {
+	        return ResponseEntity.badRequest().build();
+	    }
+		String status = body.get("status");
 		log.info("Admin update status order with id: {}", orderId);
-		OrderResponse response = orderService.updateStatus(orderId);
+		OrderResponse response = orderService.updateStatus(orderId, status);
 		return ResponseEntity.ok(response);>
 	}
 
-	@PostMapping("/api/user/order/{id}")
+	@PostMapping("/api/user/order/{orderId}")
 	@PreAuthorize("hasAuthority('USER')")
 	public ResponseEntity<OrderResponse> confirmReceive(@AuthenticationPrincipal SecurityUser securityUser,
 			@PathVariable Long orderId) {

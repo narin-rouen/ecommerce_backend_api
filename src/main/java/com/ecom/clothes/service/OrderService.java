@@ -99,4 +99,88 @@ public class OrderService {
 		return OrderResponse.fromEntity(savedOrder);
 
 	}
+
+	public OrderResponse updateStatus(Long orderId, String status) {
+		log.info("Update order status with order id: {}, with new status: {}", orderId, status);
+		OrderStatus newStatus;
+		try {
+			newStatus = OrderStatus.valueOf(status.toUpperCase());
+		} catch (IllegalArgumentException e) {
+			throw new IllegalArgumentException("Invalid order status: " + status);
+		}
+
+		Order order = orderRepository.findById(orderId)
+				.orElseThrow(() -> new RuntimeException("Order not found with id : " + orderId));
+
+		validateStatusTransition(order.getStatus(), newStatus);
+
+		order.setStatus(newStatus);
+		Order updatedOrder = orderRepository.save(order);
+		log.info("Update order status successfully!");
+
+		return OrderResponse.fromEntity(updatedOrder);
+	}
+
+	public OrderResponse confirmReceive(Long userId, Long orderId) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	private void validateStatusTransition(OrderStatus currentStatus, OrderStatus newStatus) {
+		// Cannot transition to the same status
+		if (currentStatus == newStatus) {
+			throw new IllegalStateException(String.format("Order is already in %s status", currentStatus));
+		}
+
+		// Terminal states - no further transitions allowed
+		if (currentStatus == OrderStatus.CANCELLED || currentStatus == OrderStatus.RETURNED
+				|| currentStatus == OrderStatus.REFUNDED) {
+			throw new IllegalStateException(String
+					.format("Cannot update status for orders in %s status. This is a terminal state.", currentStatus));
+		}
+
+		// Validate allowed transitions based on current status
+		switch (currentStatus) {
+		case SUBMITTED:
+			if (newStatus != OrderStatus.PROCESSING && newStatus != OrderStatus.CANCELLED) {
+				throw new IllegalStateException(
+						String.format("Cannot transition from %s to %s. Allowed transitions: PROCESSING, CANCELLED",
+								currentStatus, newStatus));
+			}
+			break;
+
+		case PROCESSING:
+			if (newStatus != OrderStatus.SHIPPED && newStatus != OrderStatus.CANCELLED) {
+				throw new IllegalStateException(
+						String.format("Cannot transition from %s to %s. Allowed transitions: SHIPPED, CANCELLED",
+								currentStatus, newStatus));
+			}
+			break;
+
+		case SHIPPED:
+			if (newStatus != OrderStatus.DELIVERED && newStatus != OrderStatus.RECEIVED) {
+				throw new IllegalStateException(
+						String.format("Cannot transition from %s to %s. Allowed transitions: DELIVERED, RECEIVED",
+								currentStatus, newStatus));
+			}
+			break;
+
+		case DELIVERED:
+			if (newStatus != OrderStatus.RECEIVED) {
+				throw new IllegalStateException(String
+						.format("Cannot transition from %s to %s. Only RECEIVED is allowed", currentStatus, newStatus));
+			}
+			break;
+
+		case RECEIVED:
+			if (newStatus != OrderStatus.RETURNED) {
+				throw new IllegalStateException(String
+						.format("Cannot transition from %s to %s. Only RETURNED is allowed", currentStatus, newStatus));
+			}
+			break;
+
+		default:
+			throw new IllegalStateException(String.format("Unknown current status: %s", currentStatus));
+		}
+	}
 }
