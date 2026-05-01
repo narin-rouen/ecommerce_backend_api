@@ -46,6 +46,29 @@ Modern e-commerce platforms require robust, secure, and scalable backends. This 
 - User status tracking (Active, Suspended, Deleted)
 - User role assignment (CUSTOMER, ADMIN, SELLER)
 
+### 🛒 Shopping Cart & Checkout
+
+- Full-featured shopping cart with persistent storage
+- Add/update/remove cart items with quantity management
+- Cart status tracking for abandoned carts
+- Seamless conversion from cart to order
+
+### 📦 Order Management
+
+- Complete order lifecycle (Submitted → Confirmed → Delivered → Received)
+- Order item tracking with product SKU variants
+- Admin order dashboard with pagination and filtering
+- User order history and status tracking
+- Order confirmation and delivery workflow
+
+### 💳 Payment Processing
+
+- Integrated payment service with transaction management
+- Support for multiple payment providers and methods
+- Payment status tracking (Completed, Pending, Failed)
+- Unique transaction ID generation for order reconciliation
+- Payment validation and order integration
+
 ---
 
 ## 🛠️ Technologies & Tools
@@ -169,7 +192,29 @@ src/main/java/com/ecom/clothes/
 - `POST /api/auth/refresh` - Refresh JWT token
 - `GET /api/auth/health` - Health check
 
-### Admin-Only Endpoints (@PreAuthorize)
+### User Endpoints (Authenticated)
+
+**Cart Management:**
+
+- `GET /api/user/myCart` - Get current user's shopping cart
+- `POST /api/user/addToCart` - Add product to cart
+- `PUT /api/user/cartItem/{id}` - Update cart item quantity
+- `GET /api/user/cartItem/{id}` - Get specific cart item details
+- `DELETE /api/user/cartItem/{id}` - Remove item from cart
+- `POST /api/user/clearCart` - Clear entire shopping cart
+
+**Order Management:**
+
+- `POST /api/user/orders` - Place order from cart with payment
+- `POST /api/user/orders/{orderId}` - Confirm order delivery receipt
+
+**Address Management:**
+
+- `POST /api/addresses` - Create new address
+- `PUT /api/addresses/{id}` - Update address
+- `DELETE /api/addresses/{id}` - Delete address
+
+### Admin Endpoints (@PreAuthorize)
 
 **Products:**
 
@@ -195,13 +240,34 @@ src/main/java/com/ecom/clothes/
 - `PUT /api/admin/subcategories/{id}` - Update subcategory
 - `DELETE /api/admin/subcategories/{id}` - Delete subcategory
 
-**Addresses:**
+**Product Attributes:**
+
+- `GET /api/admin/productAttributes` - List product attributes (paginated)
+- `POST /api/admin/productAttributes` - Create product attribute
+- `PUT /api/admin/productAttributes/{id}` - Update product attribute
+- `DELETE /api/admin/productAttributes/{id}` - Delete product attribute
+
+**Product SKUs (Variants):**
+
+- `GET /api/admin/productSkus` - List product SKUs (paginated)
+- `POST /api/admin/productSkus` - Create product variant
+- `PUT /api/admin/productSkus/{id}` - Update product variant
+- `DELETE /api/admin/productSkus/{id}` - Delete product variant
+
+**Carts (Admin View):**
+
+- `GET /api/admin/carts` - List all user carts with pagination
+- `GET /api/admin/cartItems` - List all cart items with pagination
+
+**Orders (Admin Management):**
+
+- `GET /api/admin/orders` - List all orders with pagination
+- `PUT /api/admin/orders/{orderId}` - Update order status
+
+**Addresses (Admin View):**
 
 - `GET /api/admin/addresses` - List all addresses
 - `GET /api/admin/addresses/{id}` - Get address details
-- `POST /api/addresses` - Create address
-- `PUT /api/addresses/{id}` - Update address
-- `DELETE /api/addresses/{id}` - Delete address
 
 ---
 
@@ -213,19 +279,73 @@ src/main/java/com/ecom/clothes/
 4. **Domain-Driven Design** - Well-structured entities with proper JPA relationships and Hibernate mapping
 5. **RESTful API Design** - Proper HTTP methods, status codes, pagination, and search functionality
 6. **Stateless Architecture** - Session-less design ready for horizontal scaling and cloud deployment
-7. **Code Quality** - Uses Lombok for boilerplate reduction, proper logging, DTOs for API contracts
+7. **Complete E-Commerce Flow** - Full implementation of user authentication → product browsing → cart management → order placement → payment
+8. **Code Quality** - Uses Lombok for boilerplate reduction, proper logging, DTOs for API contracts
 
-## 📈 Future Enhancements
+---
 
-This project can be extended with:
+## 🏆 Technical Challenges & Learning Outcomes
 
-- Shopping cart & order management functionality
-- Payment processing integration (Stripe, PayPal)
-- Wishlist feature
-- Product reviews and ratings
-- Email notifications
-- Admin dashboard UI
-- API documentation (Swagger/OpenAPI)
+### Complex Entity Relationships & Transactions
+
+- **Challenge:** Handling multi-level relationships (User → Cart → CartItem → Product SKU) with proper cascade behavior and orphan removal
+- **Solution:** Strategic use of JPA cascade types, fetch strategies (LAZY loading), and transactional boundaries
+- **Learning:** Deep understanding of ORM performance optimization and preventing N+1 query problems
+
+### JWT Token Security & Refresh Flow
+
+- **Challenge:** Implementing stateless authentication while managing token expiration and refresh scenarios
+- **Solution:** Custom `JwtAuthenticationFilter` intercepting requests, JJWT library for token generation/validation
+- **Learning:** Security best practices including token lifecycle, stored procedure optimization, and authentication pipeline design
+
+### Order-to-Payment Integration
+
+- **Challenge:** Ensuring atomic transactions when converting cart to order while processing payment
+- **Solution:** `@Transactional` annotations with proper rollback strategies and transaction isolation levels
+- **Learning:** Database transaction semantics, idempotency patterns, and data consistency in financial operations
+
+### Dynamic Product Configuration with SKUs & Attributes
+
+- **Challenge:** Supporting product variants (Size, Color, Style) with flexible attribute management without tight coupling
+- **Solution:** Polymorphic product modeling with SKU layer and attribute type abstraction
+- **Learning:** Domain-driven design principles, avoiding schema rigidity, enabling future scalability
+
+### Role-Based Access Control at Scale
+
+- **Challenge:** Fine-grained authorization logic across diverse endpoints (User vs Admin vs Seller operations)
+- **Solution:** Spring Security's `@PreAuthorize` with custom permission evaluators, clean separation of concerns
+- **Learning:** Security architecture, authorization strategies, and permission modeling patterns
+
+---
+
+## 📈 Current Progress vs. Roadmap
+
+| Feature                        | Status         | Notes                                                |
+| ------------------------------ | -------------- | ---------------------------------------------------- |
+| Authentication & Authorization | ✅ Complete    | JWT + Spring Security with role-based access         |
+| Product Management             | ✅ Complete    | Full CRUD with categories, subcategories, attributes |
+| Shopping Cart                  | ✅ Complete    | Add/update/remove items, cart persistence            |
+| Order Management               | ✅ Complete    | Order lifecycle with status tracking                 |
+| Payment Processing             | ✅ Complete    | Transaction management and provider integration      |
+| User Management                | ✅ Complete    | Registration, profiles, address book                 |
+| Wishlist                       | 🔄 In Progress | Entity created, API endpoints pending                |
+| Product Reviews & Ratings      | 📋 Planned     | Schema design phase                                  |
+| Email Notifications            | 📋 Planned     | Email service integration planned                    |
+| Swagger/OpenAPI Docs           | 📋 Planned     | API documentation automation                         |
+| Admin Dashboard UI             | 📋 Future      | Separate frontend project                            |
+
+---
+
+## 🔮 Planned Enhancements
+
+- **Wishlist Feature** - Save favorite products for later purchase
+- **Product Reviews & Ratings** - Customer feedback system with rating aggregation
+- **Email Notifications** - Order confirmation, shipping updates, promotional emails
+- **API Documentation** - Swagger/OpenAPI for interactive API exploration
+- **Advanced Search** - Elasticsearch integration for fast product discovery
+- **Inventory Management** - Real-time stock tracking and low-stock alerts
+- **Discount & Coupon System** - Flexible promotion engine
+- **Analytics Dashboard** - Sales trends, user behavior, revenue metrics
 
 ---
 
