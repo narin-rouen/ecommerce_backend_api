@@ -51,6 +51,14 @@ public class OrderController {
 		return ResponseEntity.ok(response);
 	}
 
+	@GetMapping("/api/admin/orders/{orderIt}")
+	@PreAuthorize("hasAuthority('ADMIN')")
+	public ResponseEntity<OrderResponse> getOrderByIdForAdmin(@PathVariable Long orderId) {
+		log.info("Admin fetch order with id: {}", orderId);
+		OrderResponse response = orderService.getOrderById(orderId);
+		return ResponseEntity.ok(response);
+	}
+
 	@PostMapping("/api/user/orders")
 	@PreAuthorize("hasAuthority('USER')")
 	public ResponseEntity<OrderResponse> placeOrder(@AuthenticationPrincipal SecurityUser securityUser,
