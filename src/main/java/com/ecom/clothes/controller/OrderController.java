@@ -67,6 +67,16 @@ public class OrderController {
 		return ResponseEntity.ok(response);
 	}
 
+	@GetMapping("/api/user/orders/{orderId}")
+	@PreAuthorize("hasAuthority('USER')")
+	public ResponseEntity<OrderResponse> getOrderByIdForUser(@AuthenticationPrincipal SecurityUser securityUser,
+			@PathVariable Long orderId) {
+		Long userId = securityUser.getUser().getId();
+		log.info("User with id: {} fetchs their order with id: {}", userId, orderId);
+		OrderResponse response = orderService.getOrderByIdAndUserId(orderId, userId);
+		return ResponseEntity.ok(response);
+	}
+
 	@PostMapping("/api/user/orders")
 	@PreAuthorize("hasAuthority('USER')")
 	public ResponseEntity<OrderResponse> placeOrder(@AuthenticationPrincipal SecurityUser securityUser,
