@@ -72,6 +72,16 @@ public class OrderService {
 				request.direction(), request.search());
 	}
 
+	@Transactional(readOnly = true)
+	public OrderResponse getOrderByIdAndUserId(Long orderId, Long userId) {
+		log.info("User with id: {} fetch the order details with id: {}", userId, orderId);
+
+		Order order = orderRepository.findByIdAndUserId(orderId, userId).orElseThrow(
+				() -> new RuntimeException("Order not found with id: " + orderId + " for user id: " + userId));
+
+		return OrderResponse.fromEntity(order);
+	}
+
 	@Transactional
 	public OrderResponse placeOrder(Long userId, CreatePaymentRequest paymentRequest) {
 		log.info("Placing order for userId: {}", userId);
