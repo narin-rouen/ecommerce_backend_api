@@ -19,6 +19,7 @@ import com.ecom.clothes.entity.OrderItem;
 import com.ecom.clothes.entity.OrderStatus;
 import com.ecom.clothes.entity.Payment;
 import com.ecom.clothes.entity.User;
+import com.ecom.clothes.exception.ResourceNotFoundException;
 import com.ecom.clothes.repository.CartItemRepository;
 import com.ecom.clothes.repository.OrderRepository;
 import com.ecom.clothes.repository.UserRepository;
@@ -55,7 +56,7 @@ public class OrderService {
 		log.info("Fetch order details with id: {}", orderId);
 
 		Order order = orderRepository.findById(orderId)
-				.orElseThrow(() -> new RuntimeException("Order not found with id: " + orderId));
+				.orElseThrow(() -> new ResourceNotFoundException("Order not found with id: " + orderId));
 
 		return OrderResponse.fromEntity(order);
 	}
@@ -77,7 +78,7 @@ public class OrderService {
 		log.info("User with id: {} fetch the order details with id: {}", userId, orderId);
 
 		Order order = orderRepository.findByIdAndUserId(orderId, userId).orElseThrow(
-				() -> new RuntimeException("Order not found with id: " + orderId + " for user id: " + userId));
+				() -> new ResourceNotFoundException("Order not found with id: " + orderId + " for user id: " + userId));
 
 		return OrderResponse.fromEntity(order);
 	}

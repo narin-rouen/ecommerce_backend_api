@@ -17,9 +17,9 @@ import com.ecom.clothes.dto.common.PageRequest;
 import com.ecom.clothes.dto.request.CreatePaymentRequest;
 import com.ecom.clothes.dto.response.OrderPageResponse;
 import com.ecom.clothes.dto.response.OrderResponse;
+import com.ecom.clothes.exception.ResourceNotFoundException;
 import com.ecom.clothes.service.OrderService;
 
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -59,7 +59,7 @@ public class OrderController {
 		try {
 			OrderResponse response = orderService.getOrderById(orderId);
 			return ResponseEntity.ok(response);
-		} catch (EntityNotFoundException e) {
+		} catch (ResourceNotFoundException e) {
 			return ResponseEntity.notFound().build();
 		}
 	}
@@ -80,8 +80,12 @@ public class OrderController {
 			@PathVariable Long orderId) {
 		Long userId = securityUser.getUser().getId();
 		log.info("User with id: {} fetchs their order with id: {}", userId, orderId);
-		OrderResponse response = orderService.getOrderByIdAndUserId(orderId, userId);
-		return ResponseEntity.ok(response);
+		try {
+			OrderResponse response = orderService.getOrderByIdAndUserId(orderId, userId);
+			return ResponseEntity.ok(response);
+		} catch (ResourceNotFoundException e) {
+			return ResponseEntity.notFound().build();
+		}
 	}
 
 	@PostMapping("/api/user/orders")
