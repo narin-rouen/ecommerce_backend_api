@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ecom.clothes.config.SecurityUser;
+import com.ecom.clothes.dto.common.PageRequest;
 import com.ecom.clothes.dto.request.CreatePaymentRequest;
 import com.ecom.clothes.dto.response.OrderPageResponse;
 import com.ecom.clothes.dto.response.OrderResponse;
@@ -65,10 +66,11 @@ public class OrderController {
 
 	@GetMapping("/api/user/orders")
 	@PreAuthorize("hasAuthority('USER')")
-	public ResponseEntity<OrderPageResponse> getAllOrderForUser(@AuthenticationPrincipal SecurityUser securityUser) {
+	public ResponseEntity<OrderPageResponse> getAllOrderForUser(@AuthenticationPrincipal SecurityUser securityUser,
+			@Valid PageRequest request) {
 		Long userId = securityUser.getUser().getId();
 		log.info("User with id: {} fetch all their order", userId);
-		OrderPageResponse response = orderService.getAllByUserId(userId);
+		OrderPageResponse response = orderService.getAllByUserId(userId, request);
 		return ResponseEntity.ok(response);
 	}
 

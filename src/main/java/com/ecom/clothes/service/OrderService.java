@@ -60,6 +60,18 @@ public class OrderService {
 		return OrderResponse.fromEntity(order);
 	}
 
+	@Transactional(readOnly = true)
+	public OrderPageResponse getAllByUserId(Long userId, PageRequest request) {
+		log.info("User with id: {} fetches all their order records", userId);
+
+		Page<Order> orderPage = orderRepository.findAllByUserId(userId, request.toPageable());
+
+		List<OrderResponse> orderResponses = orderPage.getContent().stream().map(OrderResponse::fromEntity).toList();
+
+		return new OrderPageResponse(orderResponses, orderPage.getNumber(), orderPage.getSize(), request.sortBy(),
+				request.direction(), request.search());
+	}
+
 	@Transactional
 	public OrderResponse placeOrder(Long userId, CreatePaymentRequest paymentRequest) {
 		log.info("Placing order for userId: {}", userId);
