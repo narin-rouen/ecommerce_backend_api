@@ -18,6 +18,7 @@ import com.ecom.clothes.dto.response.OrderPageResponse;
 import com.ecom.clothes.dto.response.OrderResponse;
 import com.ecom.clothes.service.OrderService;
 
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -50,12 +51,16 @@ public class OrderController {
 		return ResponseEntity.ok(response);
 	}
 
-	@GetMapping("/api/admin/orders/{orderIt}")
+	@GetMapping("/api/admin/orders/{orderId}")
 	@PreAuthorize("hasAuthority('ADMIN')")
 	public ResponseEntity<OrderResponse> getOrderByIdForAdmin(@PathVariable Long orderId) {
 		log.info("Admin fetch order with id: {}", orderId);
-		OrderResponse response = orderService.getOrderById(orderId);
-		return ResponseEntity.ok(response);
+		try {
+			OrderResponse response = orderService.getOrderById(orderId);
+			return ResponseEntity.ok(response);
+		} catch (EntityNotFoundException e) {
+			return ResponseEntity.notFound().build();
+		}
 	}
 
 	@GetMapping("/api/user/orders")
