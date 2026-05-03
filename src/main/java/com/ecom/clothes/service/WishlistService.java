@@ -3,6 +3,7 @@ package com.ecom.clothes.service;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -65,5 +66,25 @@ public class WishlistService {
 		log.info("User added product sku to wishlist successfully");
 
 		return WishlistResponse.fromEntity(saveWishlist);
+	}
+
+	@Transactional
+	public void removeWishlist(Long userId, Long wishlistId) {
+		log.info("User with id: {} remove wishlist id: {}", userId, wishlistId);
+
+		User user = userRepository.findById(userId)
+				.orElseThrow(() -> new RuntimeException("Not found user with id: {}" + userId));
+
+		Wishlist wishlist = wishlistRepository.findById(wishlistId)
+				.orElseThrow(() -> new RuntimeException("Not found wishlist with id: {}" + wishlistId));
+
+		if (!wishlist.getUser().getId().equals(userId)) {
+			log.warn("User {} attempted to delete wishlist {} belonging to another user", userId, wishlistId);
+			throw new AccessDeniedException("You don't have permission to delete this wishlist");
+		}
+
+		wishlistRepository.delete(wishlist);
+		log.info("Wishlist removed successfully");
+
 	}
 }

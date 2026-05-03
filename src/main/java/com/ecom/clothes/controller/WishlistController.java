@@ -56,5 +56,6 @@ public class WishlistController {
 		Long userId = currentUser.getUser().getId();
 		log.info("User with id: {} remove wishlist with id: {}", userId, wishlistId);
 		wishlistService.removeWishlist(userId, wishlistId);
+		return ResponseEntity.noContent().build();
 	}
 }
