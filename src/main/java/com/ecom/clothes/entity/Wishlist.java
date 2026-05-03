@@ -31,7 +31,7 @@ public class Wishlist {
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "product_id", nullable = false)
-	private Product product;
+	private ProductSku productSku;
 
 	@Column(name = "created_at", nullable = false)
 	@CreationTimestamp
@@ -40,7 +40,4 @@ public class Wishlist {
 	@Column(name = "updated_at", nullable = false)
 	@UpdateTimestamp
 	private LocalDateTime updatedAt;
-
-	@Column(name = "deleted_at", nullable = true)
-	private LocalDateTime deletedAt;
 }
