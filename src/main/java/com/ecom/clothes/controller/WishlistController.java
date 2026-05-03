@@ -3,13 +3,16 @@ package com.ecom.clothes.controller;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ecom.clothes.config.SecurityUser;
 import com.ecom.clothes.dto.common.PageRequest;
+import com.ecom.clothes.service.WishlistService;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -41,5 +44,14 @@ public class WishlistController {
 		log.info("User with id: {} add prodcut sku id: {} to wishlist", userId, request.productSkuId());
 		WishlistResponse response = wishlistService.addToWishlist(userId, request);
 		return ResponseEntity.ok(response);
+	}
+
+	@DeleteMapping("/api/user/wishlists/{wishlistId}")
+	@PreAuthorize("hasAuthority('USER')")
+	public ResponseEntity<Void> removeWishlist(@AuthenticationPrincipal SecurityUser currentUser,
+			@PathVariable Long wishlistId) {
+		Long userId = currentUser.getUser().getId();
+		log.info("User with id: {} remove wishlist with id: {}", userId, wishlistId);
+		wishlistService.removeWishlist(userId, wishlistId);
 	}
 }
