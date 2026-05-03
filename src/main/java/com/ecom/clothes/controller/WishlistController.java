@@ -12,6 +12,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.ecom.clothes.config.SecurityUser;
 import com.ecom.clothes.dto.common.PageRequest;
+import com.ecom.clothes.dto.request.CreateWishlistRequest;
+import com.ecom.clothes.dto.response.WishlistPageResponse;
+import com.ecom.clothes.dto.response.WishlistResponse;
 import com.ecom.clothes.service.WishlistService;
 
 import jakarta.validation.Valid;
@@ -38,7 +41,7 @@ public class WishlistController {
 
 	@PostMapping("/api/user/wishlists")
 	@PreAuthorize("hasAuthority('USER')")
-	public ResponseEntity<WilshlistResponse> addToWishlist(@AuthenticationPrincipal SecurityUser currentUser,
+	public ResponseEntity<WishlistResponse> addToWishlist(@AuthenticationPrincipal SecurityUser currentUser,
 			@Valid @RequestBody CreateWishlistRequest request) {
 		Long userId = currentUser.getUser().getId();
 		log.info("User with id: {} add prodcut sku id: {} to wishlist", userId, request.productSkuId());
